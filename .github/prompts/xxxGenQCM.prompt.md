@@ -85,7 +85,7 @@ Il doit reconstruire un plan structuré :
 
 ```yaml
 plan:
-  chapters:
+  plan_chapters:
     - id: module_1_introduction
       title: "Module 1 – Introduction"
       notions:
@@ -287,7 +287,7 @@ Structure exacte :
 
 ```yaml
 plan:
-  chapters:
+  plan_chapters:
     - id: "<slug>"
       title: "<Titre>"
       notions:
