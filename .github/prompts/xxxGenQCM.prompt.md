@@ -23,7 +23,7 @@ Sa mission :
 5. Mémoriser les **options initiales** et **les options du dernier run**
 6. Permettre de limiter le nombre de questions générées par run
 7. Fournir en mode chat un message explicatif synthétique
-8. Générer un fichier YAML autosuffisant (`meta + plan + qcm + progress`)
+8. Générer un fichier YAML autosuffisant (`title + chapters + meta + plan + progress`)
 9. **Créer un répertoire `dist` s’il n’existe pas et y écrire le fichier YAML du QCM**.
 10. **Respecter la contrainte : nom de fichier ≤ 20 caractères, extension comprise.**
 
@@ -202,18 +202,55 @@ Dans `meta.output_file` :
 
 # 🧾 4. Structure du fichier YAML généré
 
-Le fichier contient **exactement 4 sections** :
+Le fichier contient les sections suivantes :
 
 ```yaml
+title: "<Titre du QCM>"
+chapters:
+  - id: "<slug>"
+    title: "<Titre>"
+    questions:
+      - id: "<unique>"
+        question: "<texte>"
+        answers: ["A", "B", "C", "D"]
+        correct: <0-3>
+        explanation: "<explication>"
 meta:
 plan:
-qcm:
 progress:
 ```
 
 ---
 
-## 4.1. Section `meta`
+## 4.1. Section `title`
+
+Contient le titre du QCM :
+
+- `title`: “QCM sur <Titre>” ou valeur personnalisée
+
+---
+
+## 4.2. Section `chapters`
+
+Structure complète des chapitres avec questions :
+
+```yaml
+chapters:
+  - id: "<slug>"
+    title: "<Titre>"
+    questions:
+      - id: "<unique>"
+        question: "<texte>"
+        answers: ["A", "B", "C", "D"]
+        correct: <0-3>
+        explanation: "<explication>"
+```
+
+L’assistant **ajoute** uniquement, jamais ne modifie ni ne supprime.
+
+---
+
+## 4.3. Section `meta`
 
 Contient :
 
@@ -224,7 +261,7 @@ Contient :
 - `difficulty`
 - `questions_per_chapter`
 
-### 4.1.1 `meta.options_original`
+### 4.3.1 `meta.options_original`
 
 Snapshot immuable du premier run.
 
@@ -237,14 +274,14 @@ Contient :
 - output_file
 - new_questions
 
-### 4.1.2 `meta.options_last_run`
+### 4.3.2 `meta.options_last_run`
 
 Mis à jour à chaque run.  
 Contient aussi `new_questions`.
 
 ---
 
-# 4.2. Section `plan`
+# 4.4. Section `plan`
 
 Structure exacte :
 
@@ -259,28 +296,7 @@ plan:
 
 ---
 
-# 4.3. Section `qcm`
-
-Structure complète :
-
-```yaml
-qcm:
-  chapters:
-    - id: "<slug>"
-      title: "<Titre>"
-      questions:
-        - id: "<unique>"
-          question: "<texte>"
-          answers: ["A", "B", "C", "D"]
-          correct: <0-3>
-          explanation: "<explication>"
-```
-
-L’assistant **ajoute** uniquement, jamais ne modifie ni ne supprime.
-
----
-
-# 4.4. Section `progress`
+# 4.5. Section `progress`
 
 Permet de reprendre la génération :
 
@@ -345,6 +361,18 @@ Un message synthétique avec uniquement :
 3. numéro de question de reprise
 4. indication si le QCM est complet
 
+Puis produire :
+
+```yaml
+# FILE: dist/<output_file>
+# xxxGenQCM ...
+title: ...
+chapters: ...
+meta:
+plan:
+progress:
+```
+
 Si déjà complet :
 
 > Le QCM est déjà complet. Aucune nouvelle question générée.
@@ -359,7 +387,7 @@ Si déjà complet :
 - mémoriser options initiales et dernier run
 - `new_questions`=10 par défaut
 - ne jamais afficher les questions en mode chat
-- produire un YAML unique, propre
+- produire un YAML unique, propre avec `title`, `chapters`, `meta`, `plan`, `progress`
 - **écrire dans `dist/<output_file>`**
 - **créer `dist/` si nécessaire**
 - **output_file ≤ 20 caractères**
