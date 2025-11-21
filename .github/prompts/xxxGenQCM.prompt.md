@@ -8,7 +8,7 @@
 
 # 📘 1. Objectif général
 
-Cette spécification décrit comment un **assistant IA intégré à l’éditeur** doit exécuter la commande :
+Cette spécification décrit comment un **assistant IA intégré à l’éditeur** doit exécuter la commande :
 
 ```text
 xxxGenQCM [param=value] [param=value] …
@@ -22,14 +22,22 @@ Sa mission :
 4. Mémoriser l’état d’avancement (`progress`)
 5. Mémoriser les **options initiales** et **les options du dernier run**
 6. Permettre de limiter le nombre de questions générées par run
-7. **Fournir en mode chat un message explicatif synthétique**
+7. Fournir en mode chat un message explicatif synthétique
 8. Générer un fichier YAML autosuffisant (`meta + plan + qcm + progress`)
+9. **Créer un répertoire `dist` s’il n’existe pas et y écrire le fichier YAML du QCM**.
+10. **Respecter la contrainte : nom de fichier ≤ 20 caractères, extension comprise.**
 
 ---
 
 # 📝 2. Analyse du fichier Markdown d’entrée
 
-L’assistant doit comprendre des plans de formation variés, même mal formatés.
+L’assistant doit comprendre des plans de formation variés, même mal formatés.  
+Il doit extraire automatiquement :
+
+- le titre de la formation
+- les chapitres
+- les notions par chapitre
+- en ignorant les sections non pertinentes
 
 ---
 
@@ -37,31 +45,43 @@ L’assistant doit comprendre des plans de formation variés, même mal formaté
 
 Le titre est extrait automatiquement, même si :
 
-- ce n’est pas un `#`,
-- il est dans une forme libre,
-- il apparaît sous forme de section textuelle.
+- il n’utilise pas la syntaxe `#`
+- il est au milieu d’un paragraphe
+- il n’est pas explicitement intitulé “Titre”
+- il apparaît comme première phrase ou entête du document
 
 Le titre sert à :
 
-- générer `qcm_title` si absent :  
-  **“QCM sur <Titre>”**
-- générer le nom de fichier par défaut :  
-  **`qcm-<slug-titre>.yaml`**
+- générer `qcm_title` si absent : **“QCM sur <Titre>”**
+- générer automatiquement le nom de fichier (≤ 20 caractères extension comprise) :
+
+```
+qcm-<slug>.yaml
+```
 
 ---
 
 ## 2.2. Détection du programme
 
-Le programme peut être signalé par :
+L’assistant doit être capable de détecter des sections intitulées :
 
-- Programme, Contenu, Modules, Curriculum, Plan, etc.
+- Programme
+- Contenu
+- Modules
+- Curriculum
+- Plan
+- etc.
 
-L’assistant doit reconnaître :
+Il doit reconnaître :
 
-- Chapitres (`##`, `Module X`, `Partie X`, `1.`, etc.)
-- Notions (listes, phrases, paragraphes, concepts séparés par virgules…)
+- des chapitres (`##`, `###`, “Module 1”, “Partie A”, “1.”, etc.)
+- des notions :
+  - listes à puces
+  - phrases séparées
+  - concepts séparés par virgules
+  - paragraphes courts
 
-Il doit reconstruire une structure propre :
+Il doit reconstruire un plan structuré :
 
 ```yaml
 plan:
@@ -77,23 +97,25 @@ plan:
 
 ## 2.3. Sections à ignorer
 
-Ignorer :
+Ignorer totalement :
 
+- objectifs pédagogiques
+- public concerné
 - prérequis
-- objectifs
-- public
-- matériel requis
+- introduction marketing
+- méthodologie pédagogique
 - logistique
-- introduction non pédagogique
+- matériel requis
 
 ---
 
 # ⚙️ 3. Paramètres de la commande `xxxGenQCM`
 
-La commande peut être écrite :
+La commande peut apparaître :
 
-- dans un commentaire YAML d’un fichier
-- ou dans un message chat/agent
+- dans un commentaire YAML
+- dans un message chat
+- insérée dans un fichier existant
 
 Exemples :
 
@@ -107,26 +129,80 @@ Exemples :
 
 ## 3.1. Paramètres disponibles
 
-| Paramètre               | Exemple                         | Défaut            | Description                                   |
-| ----------------------- | ------------------------------- | ----------------- | --------------------------------------------- |
-| `questions_per_chapter` | `questions_per_chapter=40`      | **20**            | Nbre de questions par chapitre                |
-| `language`              | `language=en`                   | **fr**            | QCM **toujours en français**                  |
-| `difficulty`            | `difficulty=moyen`              | **progressive**   | Difficulté                                    |
-| `qcm_title`             | `qcm_title="QCM Docker"`        | “QCM sur <Titre>” | Titre du QCM                                  |
-| `output_file`           | `output_file="qcm-docker.yaml"` | `qcm-<slug>.yaml` | Nom du fichier                                |
-| `new_questions`         | `new_questions=15`              | **10**            | Maximum de nouvelles questions lors de ce run |
+| Paramètre               | Exemple                         | Défaut            | Description                                         |
+| ----------------------- | ------------------------------- | ----------------- | --------------------------------------------------- |
+| `questions_per_chapter` | `questions_per_chapter=40`      | **20**            | Nombre de questions par chapitre                    |
+| `language`              | `language=en`                   | **fr**            | QCM produit en français uniquement                  |
+| `difficulty`            | `difficulty=moyen`              | **progressive**   | Difficulté des questions                            |
+| `qcm_title`             | `qcm_title="QCM Docker"`        | “QCM sur <Titre>” | Titre du QCM                                        |
+| `output_file`           | `output_file="qcm-docker.yaml"` | `qcm-<slug>.yaml` | Nom du fichier (≤ 20 caractères)                    |
+| `new_questions`         | `new_questions=15`              | **10**            | Maximum de nouvelles questions générées lors du run |
 
-### 3.2. Priorité des paramètres
+---
 
-1. Paramètres dans la commande
-2. Paramètres dans un éventuel bloc HTML
+## 3.2. Règles prioritaires
+
+1. Paramètres directement fournis dans la commande
+2. Paramètres issus d’un bloc HTML éventuellement présent
 3. Valeurs par défaut
+
+---
+
+## 3.3. Règles de génération du slug et du nom de fichier
+
+- Le nom final doit être **≤ 20 caractères extension comprise**
+- Format recommandé par défaut :
+
+```
+qcm-<slug>.yaml
+```
+
+### Construction du slug :
+
+- minuscules
+- espaces remplacés par des tirets
+- accents supprimés
+- mots vides retirés (de, la, le, les, et…)
+- tronqué si nécessaire
+- sans couper un mot sauf contrainte absolue
+- résultat final ≤ 20 caractères avec `qcm-` + slug + `.yaml`
+
+### Si `output_file` est fourni :
+
+- il doit être ajusté **automatiquement** pour respecter la limite de 20 caractères
+- seule la partie basename est modifiée
+- le fichier est toujours écrit dans `dist/`
+
+---
+
+## 3.4. Répertoire de sortie `dist`
+
+L’assistant doit :
+
+- considérer que le fichier de sortie se trouve dans :
+
+```
+dist/<output_file>
+```
+
+- si `dist/` n’existe pas, **le créer automatiquement**
+- écrire ou mettre à jour le fichier YAML dans ce répertoire
+
+Dans l’en‑tête du fichier :
+
+```
+# FILE: dist/<output_file>
+```
+
+Dans `meta.output_file` :
+
+- uniquement le nom du fichier (basename), sans `dist/`
 
 ---
 
 # 🧾 4. Structure du fichier YAML généré
 
-Le fichier contient obligatoirement **4 sections** :
+Le fichier contient **exactement 4 sections** :
 
 ```yaml
 meta:
@@ -148,30 +224,29 @@ Contient :
 - `difficulty`
 - `questions_per_chapter`
 
-### 4.1.1. `meta.options_original`
+### 4.1.1 `meta.options_original`
 
-- Snapshot **immuable** de la toute première exécution.
-- Contient :
-  - language
-  - questions_per_chapter
-  - difficulty
-  - qcm_title
-  - output_file
-  - new_questions (valeur d’origine ou défaut = 10)
+Snapshot immuable du premier run.
 
-### 4.1.2. `meta.options_last_run`
+Contient :
 
-- Options **réelles** utilisées lors de la dernière exécution.
-- Doit être mis à jour à chaque run.
-- Contient aussi `new_questions`.
+- language
+- questions_per_chapter
+- difficulty
+- qcm_title
+- output_file
+- new_questions
+
+### 4.1.2 `meta.options_last_run`
+
+Mis à jour à chaque run.  
+Contient aussi `new_questions`.
 
 ---
 
-## 4.2. Section `plan`
+# 4.2. Section `plan`
 
-Représente le plan de formation interprété.
-
-Structure :
+Structure exacte :
 
 ```yaml
 plan:
@@ -182,13 +257,11 @@ plan:
         - "<notion>"
 ```
 
-Ce plan devient la **source de vérité** des générations suivantes.
-
 ---
 
-## 4.3. Section `qcm`
+# 4.3. Section `qcm`
 
-Structure :
+Structure complète :
 
 ```yaml
 qcm:
@@ -203,14 +276,13 @@ qcm:
           explanation: "<explication>"
 ```
 
-L’assistant **ajoute** des questions.  
-Il ne doit **jamais** modifier ou supprimer les questions existantes.
+L’assistant **ajoute** uniquement, jamais ne modifie ni ne supprime.
 
 ---
 
-## 4.4. Section `progress`
+# 4.4. Section `progress`
 
-Permet à l’assistant de savoir où reprendre :
+Permet de reprendre la génération :
 
 ```yaml
 progress:
@@ -228,97 +300,73 @@ progress:
 
 # 🔁 5. Algorithme de génération progressive
 
-Lors de chaque appel :
-
-1. Lire `meta`, `plan`, `qcm`, `progress`.
-2. Déterminer les options du run :  
-   commande → HTML → défauts.
-3. Mettre à jour `meta.options_last_run`.
-4. **Si le QCM est complet** :
-   - ne générer aucune question
-   - passer en message chat explicatif (voir section 7.2)
-   - `progress.status = complete`
+1. Lire `meta`, `plan`, `qcm`, `progress`
+2. Déduire les options du run
+3. Mettre à jour `meta.options_last_run`
+4. Si QCM complet :
+   - message explicatif
+   - aucun ajout
+   - status → complete
 5. Sinon :
-   - identifier le premier chapitre incomplet
-   - générer **au maximum `new_questions` questions** ou moins si le chapitre atteint son quota
+   - trouver le premier chapitre incomplet
+   - générer jusqu’à `new_questions`
    - mettre à jour `progress`
-   - mettre à jour `completed_chapters` le cas échéant
-   - si tous complets → `status = complete`
+   - marquer les chapitres terminés
 
 ---
 
 # 🧠 6. Règles de génération des questions
 
-- Toujours en **français**
-- 4 réponses obligatoires
+- en français
+- 4 réponses
 - 1 seule correcte
 - `correct` ∈ {0,1,2,3}
-- explication courte, factuelle
-- difficulté :
-  - progressive → simple → intermédiaire → avancée
-  - selon l’ordre des questions du chapitre
+- explication factuelle et courte
+- difficulté progressive dans un même chapitre
 
 ---
 
-# ▶️ 7. Comportement selon le mode d’exécution
+# ▶️ 7. Mode chat vs mode fichier
 
----
+## 7.1 Mode fichier
 
-## 7.1. Mode **complétion dans fichier**
+- produire **uniquement** du YAML
+- aucune explication textuelle
+- modifications directement dans le fichier cible
 
-- L’assistant **ne doit écrire que du YAML**
-- Jamais de texte en dehors du YAML
-- Les mises à jour se font dans le fichier actuel uniquement
+## 7.2 Mode chat
 
----
+L’assistant doit afficher **avant** le YAML :
 
-## 7.2. Mode **agent / chat** (Cursor, Windsurf…)
+Un message synthétique avec uniquement :
 
-Avant de produire le YAML :
+1. nombre de nouvelles questions
+2. chapitre traité
+3. numéro de question de reprise
+4. indication si le QCM est complet
 
-### ➤ L’assistant doit obligatoirement afficher un **message explicatif synthétique**, contenant UNIQUEMENT :
+Si déjà complet :
 
-1. **Combien de nouvelles questions** ont été générées lors du run
-2. **Dans quel chapitre** la génération a repris
-3. **À partir de quel numéro de question** la génération a repris
-4. **Si le QCM est maintenant complet ou non**
-
-→ **Aucune question ni réponse ne doit être visible dans la synthèse.**  
-→ Aucun extrait du YAML ne doit être montré dans le message explicatif.
-
-Ensuite seulement, produire :
-
-```yaml
-# FILE: <output_file>
-# xxxGenQCM ...
-meta: ...
-plan: ...
-qcm: ...
-progress: ...
-```
-
-Si le QCM est déjà complet :
-
-> « Le QCM est déjà complet. Aucune nouvelle question générée. »
+> Le QCM est déjà complet. Aucune nouvelle question générée.
 
 ---
 
 # 📦 8. Résumé des obligations
 
-- Extraire & encoder le plan → `plan`
-- Générer le QCM → `qcm`
-- Suivre l’avancement → `progress`
-- Mémoriser :
-  - options initiales (`meta.options_original`)
-  - options du dernier run (`meta.options_last_run`)
-- `new_questions` = 10 par défaut
-- En mode chat → message explicatif synthétique
-- Ne jamais afficher ou prévisualiser les questions générées dans ce message
-- YAML final = unique, auto-suffisant, non destructif
+- interpréter le plan
+- générer le QCM
+- maintenir `progress`
+- mémoriser options initiales et dernier run
+- `new_questions`=10 par défaut
+- ne jamais afficher les questions en mode chat
+- produire un YAML unique, propre
+- **écrire dans `dist/<output_file>`**
+- **créer `dist/` si nécessaire**
+- **output_file ≤ 20 caractères**
 
 ---
 
 # ℹ️ Version
 
-**Version : v10**  
+**Version : v12**  
 **Nom du fichier : `xxxGenQCM.prompt.md`**
