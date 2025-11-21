@@ -340,6 +340,20 @@ progress:
 - explication factuelle et courte
 - difficulté progressive dans un même chapitre
 
+
+### Qualité pédagogique des questions
+
+Les questions doivent être pertinentes, intelligentes et utiles pédagogiquement.
+
+Pour chaque question :
+- elle doit cibler une notion précise du plan
+- elle doit évaluer une compréhension réelle, pas une définition triviale
+- elle doit mélanger : compréhension, application, analyse
+- elle doit être réaliste, issue de cas rencontrés dans la pratique
+- elle doit éviter les pièges gratuits
+- elle doit éviter le hors-sujet
+- elle doit apporter une explication après la réponse correcte
+
 ---
 
 # ▶️ 7. Mode chat vs mode fichier
