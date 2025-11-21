@@ -361,17 +361,7 @@ Un message synthétique avec uniquement :
 3. numéro de question de reprise
 4. indication si le QCM est complet
 
-Puis produire :
-
-```yaml
-# FILE: dist/<output_file>
-# xxxGenQCM ...
-title: ...
-chapters: ...
-meta:
-plan:
-progress:
-```
+Le fichier YAML est automatiquement écrit dans dist/<output_file> sans afficher son contenu dans le chat.
 
 Si déjà complet :
 
