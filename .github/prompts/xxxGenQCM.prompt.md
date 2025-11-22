@@ -14,18 +14,7 @@ Cette spécification décrit comment un **assistant IA intégré à l’éditeur
 xxxGenQCM [param=value] [param=value] …
 ```
 
-Sa mission :
-
-1. Analyser un **plan de formation Markdown**, même mal structuré
-2. Convertir le plan en **YAML structuré (`plan`)**
-3. Générer progressivement un **QCM YAML complet**
-4. Mémoriser l’état d’avancement (`progress`)
-5. Mémoriser les **options initiales** et **les options du dernier run**
-6. Permettre de limiter le nombre de questions générées par run
-7. Fournir en mode chat un message explicatif synthétique
-8. Générer un fichier YAML autosuffisant (`title + chapters + meta + plan + progress`)
-9. **Créer un répertoire `dist` s’il n’existe pas et y écrire le fichier YAML du QCM**.
-10. **Respecter la contrainte : nom de fichier ≤ 20 caractères, extension comprise.**
+Sa mission : Analyser un plan Markdown, générer un QCM YAML progressif, mémoriser l'état, limiter les questions par run, et écrire dans `dist/` avec nom ≤20 caractères.
 
 ---
 
@@ -43,21 +32,7 @@ Il doit extraire automatiquement :
 
 ## 2.1. Détection du titre de la formation
 
-Le titre est extrait automatiquement, même si :
-
-- il n’utilise pas la syntaxe `#`
-- il est au milieu d’un paragraphe
-- il n’est pas explicitement intitulé “Titre”
-- il apparaît comme première phrase ou entête du document
-
-Le titre sert à :
-
-- générer `qcm_title` si absent : **“QCM sur <Titre>”**
-- générer automatiquement le nom de fichier (≤ 20 caractères extension comprise) :
-
-```
-qcm-<slug>.yaml
-```
+Le titre est extrait automatiquement, même mal formaté ou non titré. Sert à générer `qcm_title` (défaut : “QCM sur <Titre>”) et le nom de fichier `qcm-<slug>.yaml` (≤20 caractères).
 
 ---
 
@@ -111,40 +86,35 @@ Ignorer totalement :
 
 # ⚙️ 3. Paramètres de la commande `xxxGenQCM`
 
-La commande peut apparaître :
-
-- dans un commentaire YAML
-- dans un message chat
-- insérée dans un fichier existant
+La commande est lancée direcement en mode chat.
 
 Exemples :
 
-```yaml
-# xxxGenQCM
-# xxxGenQCM questions_per_chapter=40 difficulty=facile
-# xxxGenQCM new_questions=12
+```
+xxxGenQCM
+xxxGenQCM questions_per_chapter=40 difficulty=facile
+xxxGenQCM new_questions=12
 ```
 
 ---
 
 ## 3.1. Paramètres disponibles
 
-| Paramètre               | Exemple                         | Défaut            | Description                                         |
-| ----------------------- | ------------------------------- | ----------------- | --------------------------------------------------- |
-| `questions_per_chapter` | `questions_per_chapter=40`      | **20**            | Nombre de questions par chapitre                    |
-| `language`              | `language=en`                   | **fr**            | QCM produit en français uniquement                  |
-| `difficulty`            | `difficulty=moyen`              | **progressive**   | Difficulté des questions                            |
-| `qcm_title`             | `qcm_title="QCM Docker"`        | “QCM sur <Titre>” | Titre du QCM                                        |
-| `output_file`           | `output_file="qcm-docker.yaml"` | `qcm-<slug>.yaml` | Nom du fichier (≤ 20 caractères)                    |
-| `new_questions`         | `new_questions=15`              | **10**            | Maximum de nouvelles questions générées lors du run |
+| Paramètre               | Exemple                         | Défaut            | Description                                                      |
+| ----------------------- | ------------------------------- | ----------------- | ---------------------------------------------------------------- |
+| `questions_per_chapter` | `questions_per_chapter=40`      | **20**            | Nombre de questions par chapitre                                 |
+| `language`              | `language=en`                   | **fr**            | QCM produit en français uniquement                               |
+| `difficulty`            | `difficulty=moyen`              | **progressive**   | Difficulté des questions : facile, moyen, difficile, progressive |
+| `qcm_title`             | `qcm_title="QCM Docker"`        | “QCM sur <Titre>” | Titre du QCM                                                     |
+| `output_file`           | `output_file="qcm-docker.yaml"` | `qcm-<slug>.yaml` | Nom du fichier (≤ 20 caractères)                                 |
+| `new_questions`         | `new_questions=15`              | **10**            | Maximum de nouvelles questions générées lors du run              |
 
 ---
 
 ## 3.2. Règles prioritaires
 
 1. Paramètres directement fournis dans la commande
-2. Paramètres issus d’un bloc HTML éventuellement présent
-3. Valeurs par défaut
+2. Valeurs par défaut
 
 ---
 
@@ -166,6 +136,18 @@ qcm-<slug>.yaml
 - tronqué si nécessaire
 - sans couper un mot sauf contrainte absolue
 - résultat final ≤ 20 caractères avec `qcm-` + slug + `.yaml`
+
+#### Algorithme de calcul du slug
+
+1. **Normalisation du titre** : Prendre le titre de la formation, le convertir en minuscules.
+2. **Suppression des accents** : Remplacer les caractères accentués par leurs équivalents non accentués (ex. : é → e, à → a).
+3. **Remplacement des espaces** : Remplacer tous les espaces par des tirets (-).
+4. **Suppression des mots vides** : Retirer les mots courants comme "de", "la", "le", "les", "et", "a", "un", "une", "des", "du", "au", "aux", "sur", "pour", "avec", etc.
+5. **Nettoyage des caractères spéciaux** : Supprimer ou remplacer les caractères non alphanumériques (sauf tirets) par des tirets ou rien.
+6. **Troncature si nécessaire** : Si la longueur de `qcm-<slug>.yaml` dépasse 20 caractères, tronquer le slug en gardant des mots entiers autant que possible, en priorisant les premiers mots significatifs.
+7. **Vérification finale** : Assurer que le slug ne commence ni ne finit par un tiret, et qu'il n'y a pas de tirets consécutifs.
+
+Exemple : Pour le titre "Formation sur Docker et Kubernetes", le slug devient "formation-docker-kubernetes", donnant "qcm-formation-docker-kubernetes.yaml" (29 caractères → tronquer à "qcm-docker-kubernetes.yaml" si nécessaire).
 
 ### Si `output_file` est fourni :
 
@@ -252,32 +234,15 @@ L’assistant **ajoute** uniquement, jamais ne modifie ni ne supprime.
 
 ## 4.3. Section `meta`
 
-Contient :
-
-- `formation_title`
-- `qcm_title`
-- `output_file`
-- `language`
-- `difficulty`
-- `questions_per_chapter`
+Contient : `formation_title`, `qcm_title`, `output_file`, `language`, `difficulty`, `questions_per_chapter`.
 
 ### 4.3.1 `meta.options_original`
 
-Snapshot immuable du premier run.
-
-Contient :
-
-- language
-- questions_per_chapter
-- difficulty
-- qcm_title
-- output_file
-- new_questions
+Snapshot immuable du premier run (language, questions_per_chapter, difficulty, qcm_title, output_file, new_questions).
 
 ### 4.3.2 `meta.options_last_run`
 
-Mis à jour à chaque run.  
-Contient aussi `new_questions`.
+Mis à jour à chaque run (idem + new_questions).
 
 ---
 
@@ -340,12 +305,12 @@ progress:
 - explication factuelle et courte
 - difficulté progressive dans un même chapitre
 
-
 ### Qualité pédagogique des questions
 
 Les questions doivent être pertinentes, intelligentes et utiles pédagogiquement.
 
 Pour chaque question :
+
 - elle doit cibler une notion précise du plan
 - elle doit évaluer une compréhension réelle, pas une définition triviale
 - elle doit mélanger : compréhension, application, analyse
@@ -356,15 +321,7 @@ Pour chaque question :
 
 ---
 
-# ▶️ 7. Mode chat vs mode fichier
-
-## 7.1 Mode fichier
-
-- produire **uniquement** du YAML
-- aucune explication textuelle
-- modifications directement dans le fichier cible
-
-## 7.2 Mode chat
+# ▶️ 7. Mode chat
 
 L’assistant doit afficher **avant** le YAML :
 
