@@ -100,14 +100,14 @@ xxxGenQCM new_questions=12
 
 ## 3.1. Paramètres disponibles
 
-| Paramètre               | Exemple                         | Défaut            | Description                                                      |
-| ----------------------- | ------------------------------- | ----------------- | ---------------------------------------------------------------- |
-| `questions_per_chapter` | `questions_per_chapter=40`      | **20**            | Nombre de questions par chapitre                                 |
-| `language`              | `language=en`                   | **fr**            | QCM produit en français uniquement                               |
-| `difficulty`            | `difficulty=moyen`              | **progressive**   | Difficulté des questions : facile, moyen, difficile, progressive |
-| `qcm_title`             | `qcm_title="QCM Docker"`        | “QCM sur <Titre>” | Titre du QCM                                                     |
-| `output_file`           | `output_file="qcm-docker.yaml"` | `qcm-<slug>.yaml` | Nom du fichier (≤ 20 caractères)                                 |
-| `new_questions`         | `new_questions=15`              | **10**            | Maximum de nouvelles questions générées lors du run              |
+| Paramètre               | Exemple                         | Défaut            | Description                                         |
+| ----------------------- | ------------------------------- | ----------------- | --------------------------------------------------- |
+| `questions_per_chapter` | `questions_per_chapter=40`      | **20**            | Nombre de questions par chapitre                    |
+| `language`              | `language=en`                   | **fr**            | QCM produit en français uniquement                  |
+| `difficulty`            | `difficulty=moyen`              | **difficile**     | Difficulté des questions : facile, moyen, difficile |
+| `qcm_title`             | `qcm_title="QCM Docker"`        | “QCM sur <Titre>” | Titre du QCM                                        |
+| `output_file`           | `output_file="qcm-docker.yaml"` | `qcm-<slug>.yaml` | Nom du fichier (≤ 20 caractères)                    |
+| `new_questions`         | `new_questions=15`              | **10**            | Maximum de nouvelles questions générées lors du run |
 
 ---
 
@@ -303,7 +303,6 @@ progress:
 - 1 seule correcte
 - `correct` ∈ {0,1,2,3}
 - explication factuelle et courte
-- difficulté progressive dans un même chapitre
 
 ### Qualité pédagogique des questions
 
