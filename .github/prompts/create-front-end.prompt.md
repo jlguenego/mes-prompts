@@ -22,20 +22,33 @@ repertoire=mon-projet
 
 ## Contraintes
 
-- ne cree pas de workspace Vscode
+- Ne cree pas de workspace Vscode
 - Ne pas importer React dans les fichiers si ce n’est pas nécessaire.
 - Corriger les fichiers pour que `bun run build` marche sans erreur.
 
+### Tailwind
+
+- Ignorer absolument tout ce que tu sais sur Tailwind et son installation.
+- Interdit de faire les commandes `bunx tailwindcss init`, `bunx tailwindcss init -p`
+- Ne fais aucune étape automatique ou classique d’installation.
+- Suis uniquement et strictement la documentation officielle à l’URL : https://tailwindcss.com/docs/installation/using-vite
+- Ne lance aucune commande qui n’est pas explicitement mentionnée dans la documentation officielle.
+- Ne crée pas de fichier de configuration Tailwind ou PostCSS sans qu’il soit demandé dans la documentation.
+- Ne fais aucune supposition ou adaptation personnelle.
+- Chaque étape doit être validée par la documentation https://tailwindcss.com/docs/installation/using-vite, sans extrapolation.
+- Si une étape n’est pas claire, demande une validation avant d’agir.
+
 ## Plan
+
+Faire une todo liste :
 
 1. Crée le projet vite avec `bunx create-vite -t react-swc-ts --no-interactive  <repertoire>`
 2. Mettre le repertoire projet sous git avec `git init`
-3. Ajoute tailwindcss@v4
-   1. Important : Ignore tout ce que tu sais d'une installation Tailwind.
-   2. Utilise la documentation à l'url `https://tailwindcss.com/docs/installation/using-vite`
-   3. Verifie que `tailwindcss @tailwindcss/vite` sont installés.
-   4. Le fichier vite.config.ts doit avoir le plugin `tailwindcss()` qui vient de `import tailwindcss from '@tailwindcss/vite'`
-   5. Le fichier `index.css` doit avoir l'instruction `@import "tailwindcss";`
+3. Ajoute tailwindcss@v4 :
+   1. Utilise la documentation à l'url https://tailwindcss.com/docs/installation/using-vite
+   2. Verifie que `tailwindcss @tailwindcss/vite` sont installés.
+   3. Le fichier vite.config.ts doit avoir le plugin `tailwindcss()` qui vient de `import tailwindcss from '@tailwindcss/vite'`
+   4. Remplacer le contenu du fichier `index.css` par l'instruction `@import "tailwindcss";` et crier en sortie standard HOURRRRRRRRRRRAAAAA
 4. Ajoute prettier
    1. `bun add -D prettier`
    2. Ajoute dans `package.json` la command script `format` avec `prettier -w .`
@@ -58,5 +71,9 @@ repertoire=mon-projet
 
 1. Formatter le code `bun run format`
 2. Lancer le linter `bun run lint`
-3. Verifier la build `bun run build`, analyser et corriger jusque qu'il n'y ait plus d'erreur.
-4. Propose de commiter dans git avec un message respectant la conventional commit.
+3. Verifier la build `bun run build`
+4. Verifier que la page Home et About sont accessibles depuis `main.ts`.
+5. Propose de commiter dans git avec un message respectant la conventional commit.
+6. Analyser et corriger jusque qu'il n'y ait plus d'erreur dans la liste.
+
+Dire que toutes les verifications sont passées en disant YEAH!!!!
