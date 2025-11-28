@@ -317,6 +317,7 @@ Pour chaque question :
 - elle doit éviter les pièges gratuits
 - elle doit éviter le hors-sujet
 - elle doit apporter une explication après la réponse correcte
+- les mauvaises réponses doivent avoir une longueur approximativement équivalente à celle de la bonne réponse, afin que celle-ci ne se distingue pas par une longueur nettement différente des autres propositions
 
 ---
 
