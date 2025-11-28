@@ -50,7 +50,7 @@ Faire une todo liste :
    1. Utilise la documentation à l'url https://tailwindcss.com/docs/installation/using-vite
    2. Verifie que `tailwindcss @tailwindcss/vite` sont installés.
    3. Le fichier vite.config.ts doit avoir le plugin `tailwindcss()` qui vient de `import tailwindcss from '@tailwindcss/vite'`
-   4. Remplacer le contenu du fichier `index.css` par l'instruction `@import "tailwindcss";` et crier en sortie standard HOURRRRRRRRRRRAAAAA
+   4. Remplacer le contenu du fichier `index.css` par l'instruction `@import "tailwindcss";` et crier dans la sortie des messages chat "HOURRRRRRRRRRRAAAAA"
 4. Ajoute prettier
    1. `bun add -D prettier`
    2. Ajoute dans `package.json` la command script `format` avec `prettier -w .`
