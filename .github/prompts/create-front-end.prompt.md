@@ -1,3 +1,7 @@
+---
+agent: agent
+---
+
 # Creer un template de projet Front-End
 
 ## Role
@@ -40,6 +44,15 @@ repertoire=mon-projet
 6. Instancie 2 pages dans l'application pour faire une demo minimum du router (`./src/pages/Home.tsx` et `./src/pages/About.tsx`)
 7. Trust les librairies: `bun pm trust --all`
 8. Nettoyer le CSS : supprimer le fichier `./src/App.css` et ses references dans le projet. Supprimer le CSS du fichier `./src/index.css`. N'utiliser à l'avenir que du tailwindcss.
+9. Initialiser un fichier `./AGENTS.md` avec:
+
+```
+1. Le projet utilise `bun`. Ne pas utiliser `npm` mais `bun`.
+3. Ne pas lancer `bun run dev` car il est déjà lancé sur le port TCP 5173
+4. Le projet doit être formatté avec prettier et sa commande `bun format`
+5. Les pages du site doivent être dans `/src/pages`
+6. Le projet doit utiliser tailwind et le moins possible de CSS natif
+```
 
 ## Verifie
 
