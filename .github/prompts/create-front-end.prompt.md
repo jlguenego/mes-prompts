@@ -54,7 +54,7 @@ Faire une todo liste :
    2. Ajoute dans `package.json` la command script `format` avec `prettier -w .`
    3. Formatte le projet `bun run format`
 5. Installe le router de react avec typescript
-6. Instancie 2 pages dans l'application pour faire une demo minimum du router (`./src/pages/Home.tsx` et `./src/pages/About.tsx`)
+6. Instancie 2 pages dans l'application pour faire une demo minimum du router avec un entête contenant un menu (`./src/pages/Home.tsx` et `./src/pages/About.tsx`)
 7. Trust les librairies: `bun pm trust --all`
 8. Nettoyer le CSS : supprimer le fichier `./src/App.css` et ses references dans le projet. Supprimer le CSS du fichier `./src/index.css`. N'utiliser à l'avenir que du tailwindcss.
 9. Initialiser un fichier `./AGENTS.md` avec:
@@ -73,7 +73,7 @@ Faire une todo liste :
 2. Lancer le linter `bun run lint`
 3. Verifier la build `bun run build`
 4. Verifier que la page Home et About sont accessibles depuis `main.ts`.
-5. Propose de commiter dans git avec un message respectant la conventional commit.
+5. Proposer sur la sortie standard une suggestion de message de commit respectant la conventional commit.
 6. Analyser et corriger jusque qu'il n'y ait plus d'erreur dans la liste.
 
 Dire que toutes les verifications sont passées en disant YEAH!!!!
