@@ -54,7 +54,7 @@ Faire une todo liste :
    2. Ajoute dans `package.json` la command script `format` avec `prettier -w .`
    3. Formatte le projet `bun run format`
 5. Installe le router de react avec typescript
-6. Instancie 2 pages dans l'application pour faire une demo minimum du router avec un entête contenant un menu (`./src/pages/Home.tsx` et `./src/pages/About.tsx`)
+6. Instancie 2 pages dans l'application pour faire une demo minimum du router avec un entête contenant un joli menu décorée avec des classes tailwindcss (`./src/pages/Home.tsx` et `./src/pages/About.tsx`).
 7. Trust les librairies: `bun pm trust --all`
 8. Nettoyer le CSS : supprimer le fichier `./src/App.css` et ses references dans le projet. Supprimer le CSS du fichier `./src/index.css`. N'utiliser à l'avenir que du tailwindcss.
 9. Initialiser un fichier `./AGENTS.md` avec:
